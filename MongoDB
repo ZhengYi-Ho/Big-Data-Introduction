@@ -1,41 +1,41 @@
 ## the exercise is run on cloudera quickstart VM
 
 ## step 1
-## change to the mongodb directory
+# change to the mongodb directory
 [cloudera@quickstart ~]$ cd Downloads
 [cloudera@quickstart Downloads]$ cd big-data-3
 [cloudera@quickstart big-data-3]$ cd mongodb
 [cloudera@quickstart mongodb]$ ./mongodb/bin/mongod --dbpath db
 
-## run the mongodb shell to query the server
+# run the mongodb shell to query the server
 [cloudera@quickstart ~]$ cd Downloads
 [cloudera@quickstart Downloads]$ cd big-data-3
 [cloudera@quickstart big-data-3]$ cd mongodb
 [cloudera@quickstart mongodb]$ ./mongodb/bin/mongo
 
 ## step 2
-## show databases and collection
+# show databases and collection
 > show dbs
 journaldev  0.000GB
 local       0.000GB
 sample      0.004GB
 test        0.000GB
 
-## db sample has loaded with Twitter JSON data so switch to that db
+# db sample has loaded with Twitter JSON data so switch to that db
 > use sample
 switched to db sample
 
-## using show collection to see the collection
+# using show collection to see the collection
 > show collections
 collection
 users
 
-## Twitter data is stored in users collection
+# Twitter data is stored in users collection
 > db.users.count()
 11188
 
 ## step 3
-## look at document and find disitnct values, we can examine contents of one of the documents
+# look at document and find disitnct values, we can examine contents of one of the documents
 > db.users.findOne()
 {
 	"_id" : ObjectId("578ffa8e7eb9513f4f55a935"),
@@ -57,13 +57,13 @@ users
 	}
 }
 
-## so far, we have:
+# so far, we have:
 ## 1. switch to db sample by runnung use sample
 ## 2. see the collections in db sample (colleciton & users) by runnung show collection
 ## 3. there are 11188 users in users document by running db.users.count()
 ## 4. pick one document by running db.users.findOne()
 
-## find distinct values for specific field by using distinct(), for example, user_name
+# find distinct values for specific field by using distinct(), for example, user_name
 > db.users.distinct("user_name")
         "BeaversSpyder",
 	"mattoak",
@@ -111,11 +111,11 @@ users
 	"manutdbelieve",...
 
 ## step 4
-## search for specific field value by using find(), for example, user_name = ActionSportsJax
+# search for specific field value by using find(), for example, user_name = ActionSportsJax
 > db.users.find({user_name:"ActionSportsJax"})
 { "_id" : ObjectId("579670bfc38159226b4c8e47"), "user_name" : "ActionSportsJax", "retweet_count" : 0, "tweet_followers_count" : 3539, "source" : "<a href=\"http://twitter.com/download/iphone\" rel=\"nofollow\">Twitter for iPhone</a>", "coordinates" : null, "tweet_mentioned_count" : 2, "tweet_ID" : "757667800521531393", "tweet_text" : "RT @wwbrown19: I'm watching the great broadcast from @actionsportsjax on St. Augustine football and asked myself \"How on earth did we stop…", "user" : { "CreatedAt" : ISODate("2009-04-27T20:52:10Z"), "FavouritesCount" : 120, "FollowersCount" : 3539, "FriendsCount" : 476, "UserId" : 35857042, "Location" : "Jacksonville, FL" } }
 
-## putting .pretty() to the end
+# putting .pretty() to the end
 > db.users.find({user_name:"ActionSportsJax"}).pretty()
 {
 	"_id" : ObjectId("579670bfc38159226b4c8e47"),
@@ -138,17 +138,106 @@ users
 }
 
 ## step 5
-## filter fields returned by query, specify specific arguement to only show the fields we want, in this case tweet_ID
+# filter fields returned by query, specify specific arguement to only show the fields we want, in this case tweet_ID
 > db.users.find({user_name:"ActionSportsJax"},{tweet_ID:1})
 { "_id" : ObjectId("579670bfc38159226b4c8e47"), "tweet_ID" : "757667800521531393" }
 
-## motice that _id field is primary key for every document, we can remove it by using 0, either order will do
+# motice that _id field is primary key for every document, we can remove it by using 0, either order will do
 > db.users.find({user_name:"ActionSportsJax"},{tweet_ID:1, _id:0})
 { "tweet_ID" : "757667800521531393" }
 > db.users.find({user_name:"ActionSportsJax"},{ _id:0, tweet_ID:1})
 { "tweet_ID" : "757667800521531393" }
 
 ## step 6
-## perform regular expression search
+# perform regular expression search
+# attention to the following two query:
+
+# this query search for where the tweet_text field was exactly equal to FIFA
+> db.users.find({tweet_text:"FIFA"})
+
+# this query search for where the tweet_text field contained FIFA
+> db.users.find({tweet_text:/FIFA/})
+{ "_id" : ObjectId("578ffa8e7eb9513f4f55a935"), "user_name" : "koteras", "retweet_count" : 0, "tweet_followers_count" : 461, "source" : "<a href=\"http://twitter.com/download/iphone\" rel=\"nofollow\">Twitter for iPhone</a>", "coordinates" : null, "tweet_mentioned_count" : 1, "tweet_ID" : "755891629932675072", "tweet_text" : "RT @ochocinco: I beat them all for 10 straight hours #FIFA16KING  https://t.co/BFnV6jfkBL", "user" : { "CreatedAt" : ISODate("2011-12-27T09:04:01Z"), "FavouritesCount" : 5223, "FollowersCount" : 461, "FriendsCount" : 619, "UserId" : 447818090, "Location" : "501" } }
+{ "_id" : ObjectId("578ffa917eb9513f4f55a939"), "user_name" : "Tonkatol", "retweet_count" : 0, "tweet_followers_count" : 616, "source" : "<a href=\"http://twitter.com\" rel=\"nofollow\">Twitter Web Client</a>", "coordinates" : null, "tweet_mentioned_count" : 1, "tweet_ID" : "755891638921232384", "tweet_text" : "RT @GameSeek: Follow & Retweet for your chance to win a copy of FIFA 17 Deluxe Edition (platform of your choice) in our #giveaway! https://…", "user" : { "CreatedAt" : ISODate("2012-07-28T21:00:59Z"), "FavouritesCount" : 350, "FollowersCount" : 616, "FriendsCount" : 2675, "UserId" : 722815650, "Location" : null } }
+{ "_id" : ObjectId("578ffa957eb9513f4f55a93b"), "user_name" : "Gaslet", "retweet_count" : 0, "tweet_followers_count" : 101, "source" : "<a href=\"http://twitter.com/#!/download/ipad\" rel=\"nofollow\">Twitter for iPad</a>", "coordinates" : null, "tweet_mentioned_count" : 1, "tweet_ID" : "755891659729145856", "tweet_text" : "@CIVARAGI ...I was putting ffs but it autocorrected it too FIFA", "user" : { "CreatedAt" : ISODate("2010-04-29T12:32:47Z"), "FavouritesCount" : 5207, "FollowersCount" : 101, "FriendsCount" : 198, "UserId" : 138393730, "Location" : null } }
+{ "_id" : ObjectId("578ffa967eb9513f4f55a93d"), "user_name" : "Syaxmii_", "retweet_count" : 0, "tweet_followers_count" : 685, "source" : "<a href=\"http://twitter.com/download/android\" rel=\"nofollow\">Twitter for Android</a>", "coordinates" : null, "tweet_mentioned_count" : 1, "tweet_ID" : "755891664787353600", "tweet_text" : "RT @GeniusFootball: You know it's FIFA... https://t.co/tLK6sTnPaM", "user" : { "CreatedAt" : ISODate("2012-07-22T08:05:25Z"), "FavouritesCount" : 575, "FollowersCount" : 685, "FriendsCount" : 415, "UserId" : 710328204, "Location" : null } }
+{ "_id" : ObjectId("578ffaa07eb9513f4f55a93f"), "user_name" : "CamSteele_96", "retweet_count" : 0, "tweet_followers_count" : 3367, "source" : "<a href=\"http://twitter.com/download/iphone\" rel=\"nofollow\">Twitter for iPhone</a>", "coordinates" : null, "tweet_mentioned_count" : 1, "tweet_ID" : "755891703110832128", "tweet_text" : "RT @WeahsCousin: \"Pogba isn't worth £100million.\"\n\nThanks Dean, the £500 you've spent on FIFA Ultimate Team probably wasn't worth it either.", "user" : { "CreatedAt" : ISODate("2013-01-07T21:02:45Z"), "FavouritesCount" : 5028, "FollowersCount" : 3367, "FriendsCount" : 3740, "UserId" : 1069195087, "Location" : "Last Laugh Lane" } }
+{ "_id" : ObjectId("578ffaa07eb9513f4f55a941"), "user_name" : "KILLECHl", "retweet_count" : 0, "tweet_followers_count" : 523, "source" : "<a href=\"http://twitter.com/download/iphone\" rel=\"nofollow\">Twitter for iPhone</a>", "coordinates" : null, "tweet_mentioned_count" : 1, "tweet_ID" : "755891704843145217", "tweet_text" : "RT @WeahsCousin: \"Pogba isn't worth £100million.\"\n\nThanks Dean, the £500 you've spent on FIFA Ultimate Team probably wasn't worth it either.", "user" : { "CreatedAt" : ISODate("2015-04-04T14:10:24Z"), "FavouritesCount" : 1283, "FollowersCount" : 523, "FriendsCount" : 153, "UserId" : -1155910244, "Location" : "USA" } }
+{ "_id" : ObjectId("578ffaa17eb9513f4f55a943"), "user_name" : "FifaonEbayUK", "retweet_count" : 0, "tweet_followers_count" : 110, "source" : "<a href=\"http://ifttt.com\" rel=\"nofollow\">IFTTT</a>", "coordinates" : null, "tweet_mentioned_count" : 0, "tweet_ID" : "755891708756430848", "tweet_text" : "New on eBay! XBOX 360 Game FIFA 16 2016 https://t.co/xicyLOE6aQ https://t.co/uw9OLrie4e", "user" : { "CreatedAt" : ISODate("2015-09-23T08:12:22Z"), "FavouritesCount" : 0, "FollowersCount" : 110, "FriendsCount" : 51, "UserId" : -547573921, "Location" : "Reino Unido" } }
+{ "_id" : ObjectId("578ffaab7eb9513f4f55a947"), "user_name" : "superduperkorry", "retweet_count" : 0, "tweet_followers_count" : 547, "source" : "<a href=\"http://twitter.com/download/iphone\" rel=\"nofollow\">Twitter for iPhone</a>", "coordinates" : null, "tweet_mentioned_count" : 1, "tweet_ID" : "755891752947421184", "tweet_text" : "RT @as_shahid12: Anybody can catch the work in FIFA⚽️", "user" : { "CreatedAt" : ISODate("2014-06-11T07:19:34Z"), "FavouritesCount" : 2582, "FollowersCount" : 547, "FriendsCount" : 607, "UserId" : -1694575649, "Location" : "on a wave" } }
+{ "_id" : ObjectId("578ffaad7eb9513f4f55a949"), "user_name" : "Posts_from_Asia", "retweet_count" : 0, "tweet_followers_count" : 1531, "source" : "<a href=\"http://www1.makebot.sh/\" rel=\"nofollow\">Posts_from_Asia</a>", "coordinates" : null, "tweet_mentioned_count" : 0, "tweet_ID" : "755891760472072192", "tweet_text" : "Anyone Loves Poo Wine? https://t.co/0GLv7I0IqQ https://t.co/OEXXMSz4NN #BBC #CNN #Reuters #AP #ABC #NBC #CBS #NYT #FIFA #Deutschland #USA", "user" : { "CreatedAt" : ISODate("2015-08-01T05:28:01Z"), "FavouritesCount" : 0, "FollowersCount" : 1531, "FriendsCount" : 1464, "UserId" : -991868175, "Location" : "Entire Asia" } }
+{ "_id" : ObjectId("578ffab47eb9513f4f55a94b"), "user_name" : "jamesdohertyedm", "retweet_count" : 0, "tweet_followers_count" : 69, "source" : "<a href=\"http://twitter.com/download/iphone\" rel=\"nofollow\">Twitter for iPhone</a>", "coordinates" : null, "tweet_mentioned_count" : 1, "tweet_ID" : "755891790151086083", "tweet_text" : "RT @WeahsCousin: \"Pogba isn't worth £100million.\"\n\nThanks Dean, the £500 you've spent on FIFA Ultimate Team probably wasn't worth it either.", "user" : { "CreatedAt" : ISODate("2015-12-24T01:12:07Z"), "FavouritesCount" : 423, "FollowersCount" : 69, "FriendsCount" : 153, "UserId" : 289077725, "Location" : "Treorchy, Wales" } }
+{ "_id" : ObjectId("578ffab57eb9513f4f55a94d"), "user_name" : "KamOzburn", "retweet_count" : 0, "tweet_followers_count" : 436, "source" : "<a href=\"http://twitter.com/download/iphone\" rel=\"nofollow\">Twitter for iPhone</a>", "coordinates" : null, "tweet_mentioned_count" : 1, "tweet_ID" : "755891789379280896", "tweet_text" : "RT @ochocinco: I beat them all for 10 straight hours #FIFA16KING  https://t.co/BFnV6jfkBL", "user" : { "CreatedAt" : ISODate("2014-05-30T03:16:42Z"), "FavouritesCount" : 10874, "FollowersCount" : 436, "FriendsCount" : 307, "UserId" : -1760944605, "Location" : null } }
+{ "_id" : ObjectId("578ffabd7eb9513f4f55a94f"), "user_name" : "JBezants", "retweet_count" : 0, "tweet_followers_count" : 544, "source" : "<a href=\"http://twitter.com/download/iphone\" rel=\"nofollow\">Twitter for iPhone</a>", "coordinates" : null, "tweet_mentioned_count" : 1, "tweet_ID" : "755891828352749568", "tweet_text" : "RT @RobHarris: IOC withdrawing support for sporting events in Russia sharpens scrutiny on FIFA staging 2018 World Cup in Russia  https://t.…", "user" : { "CreatedAt" : ISODate("2011-06-16T17:12:49Z"), "FavouritesCount" : 421, "FollowersCount" : 544, "FriendsCount" : 834, "UserId" : 318544426, "Location" : null } }
+{ "_id" : ObjectId("578ffabf7eb9513f4f55a951"), "user_name" : "Hibra514", "retweet_count" : 0, "tweet_followers_count" : 273, "source" : "<a href=\"http://twitter.com\" rel=\"nofollow\">Twitter Web Client</a>", "coordinates" : null, "tweet_mentioned_count" : 1, "tweet_ID" : "755891837043249152", "tweet_text" : "RT @WeahsCousin: \"Pogba isn't worth £100million.\"\n\nThanks Dean, the £500 you've spent on FIFA Ultimate Team probably wasn't worth it either.", "user" : { "CreatedAt" : ISODate("2011-07-29T15:29:51Z"), "FavouritesCount" : 6740, "FollowersCount" : 273, "FriendsCount" : 119, "UserId" : 344774966, "Location" : null } }
+{ "_id" : ObjectId("578ffac17eb9513f4f55a953"), "user_name" : "jaaakesmithh", "retweet_count" : 0, "tweet_followers_count" : 823, "source" : "<a href=\"http://twitter.com/download/iphone\" rel=\"nofollow\">Twitter for iPhone</a>", "coordinates" : null, "tweet_mentioned_count" : 1, "tweet_ID" : "755891842542104577", "tweet_text" : "RT @ochocinco: I beat them all for 10 straight hours #FIFA16KING  https://t.co/BFnV6jfkBL", "user" : { "CreatedAt" : ISODate("2011-08-22T16:36:47Z"), "FavouritesCount" : 9560, "FollowersCount" : 823, "FriendsCount" : 610, "UserId" : 360061407, "Location" : "Mount Pleasant, MI" } }
+{ "_id" : ObjectId("578ffac17eb9513f4f55a955"), "user_name" : "Tonkatol", "retweet_count" : 0, "tweet_followers_count" : 616, "source" : "<a href=\"http://twitter.com\" rel=\"nofollow\">Twitter Web Client</a>", "coordinates" : null, "tweet_mentioned_count" : 1, "tweet_ID" : "755891844840583168", "tweet_text" : "@GameSeek Great #giveaway - would love to win FIFA 17 Deluxe Edition. Have followed and retweeted. Thanks for the chance to win", "user" : { "CreatedAt" : ISODate("2012-07-28T21:00:59Z"), "FavouritesCount" : 350, "FollowersCount" : 616, "FriendsCount" : 2675, "UserId" : 722815650, "Location" : null } }
+{ "_id" : ObjectId("578ffac47eb9513f4f55a957"), "user_name" : "DCDanielCollins", "retweet_count" : 0, "tweet_followers_count" : 262, "source" : "<a href=\"http://twitter.com/download/iphone\" rel=\"nofollow\">Twitter for iPhone</a>", "coordinates" : null, "tweet_mentioned_count" : 1, "tweet_ID" : "755891857754845185", "tweet_text" : "RT @WeahsCousin: \"Pogba isn't worth £100million.\"\n\nThanks Dean, the £500 you've spent on FIFA Ultimate Team probably wasn't worth it either.", "user" : { "CreatedAt" : ISODate("2012-01-16T19:08:40Z"), "FavouritesCount" : 592, "FollowersCount" : 262, "FriendsCount" : 292, "UserId" : 465801023, "Location" : "Manchester" } }
+{ "_id" : ObjectId("578ffacb7eb9513f4f55a959"), "user_name" : "cotanboss2", "retweet_count" : 0, "tweet_followers_count" : 4, "source" : "<a href=\"http://www.google.com/\" rel=\"nofollow\">Google</a>", "coordinates" : null, "tweet_mentioned_count" : 1, "tweet_ID" : "755891886276116480", "tweet_text" : "Am apreciat un videoclip pe @YouTube, https://t.co/sQeOstxCF4 COSMAR!!!!!!! (FIFA 16 RTG #64)", "user" : { "CreatedAt" : ISODate("2015-08-16T09:17:40Z"), "FavouritesCount" : 0, "FollowersCount" : 4, "FriendsCount" : 41, "UserId" : -869461019, "Location" : null } }
+{ "_id" : ObjectId("578ffacf7eb9513f4f55a95b"), "user_name" : "ColeLJH1988", "retweet_count" : 0, "tweet_followers_count" : 86, "source" : "<a href=\"http://twitter.com/download/iphone\" rel=\"nofollow\">Twitter for iPhone</a>", "coordinates" : null, "tweet_mentioned_count" : 3, "tweet_ID" : "755891901438525441", "tweet_text" : "RT @imadamsavage: Working on some @logtournament goodness today and I need advice - anyone know whether its possible to hit a 190 FIFA Draf…", "user" : { "CreatedAt" : ISODate("2016-01-08T13:11:52Z"), "FavouritesCount" : 1913, "FollowersCount" : 86, "FriendsCount" : 305, "UserId" : 449637671, "Location" : "Slough, South East" } }
+{ "_id" : ObjectId("578ffad77eb9513f4f55a95f"), "user_name" : "ScottTorpey", "retweet_count" : 0, "tweet_followers_count" : 306, "source" : "<a href=\"http://www.google.com/\" rel=\"nofollow\">Google</a>", "coordinates" : null, "tweet_mentioned_count" : 2, "tweet_ID" : "755891935462785025", "tweet_text" : "I liked a @YouTube video from @jmxfifa https://t.co/0KxHB8nUEe WTF!!! FIFA 17 TOP 10 DOWNGRADES ON ULTIMATE TEAM!?!", "user" : { "CreatedAt" : ISODate("2014-10-07T19:45:27Z"), "FavouritesCount" : 4631, "FollowersCount" : 306, "FriendsCount" : 624, "UserId" : -1450491958, "Location" : "Aberdeen, Scotland" } }
+{ "_id" : ObjectId("578ffad77eb9513f4f55a961"), "user_name" : "ScottTorpey", "retweet_count" : 0, "tweet_followers_count" : 306, "source" : "<a href=\"http://linkis.com\" rel=\"nofollow\">Linkis.com</a>", "coordinates" : null, "tweet_mentioned_count" : 2, "tweet_ID" : "755891937677287424", "tweet_text" : "I liked a @YouTube video from @jmxfifa https://t.co/DiEPj8L8ho WTF!!! FIFA 17 TOP 10 DOWNGRADES ON ULTIMATE TEAM!?!", "user" : { "CreatedAt" : ISODate("2014-10-07T19:45:27Z"), "FavouritesCount" : 4631, "FollowersCount" : 306, "FriendsCount" : 624, "UserId" : -1450491958, "Location" : "Aberdeen, Scotland" } }
+Type "it" for more
+
+# count the number of results
+> db.users.find({tweet_text:/FIFA/}).count()
+3697
+
+## step 7
+# search using text index, which can be created to speed up searched and allows advanced searches with $text
+# let's first create the index using createIndex()
+# the arguement tweet_text specifies the field to create the index
+> db.users.createIndex({"tweet_text":"text"})
+{
+	"createdCollectionAutomatically" : false,
+	"numIndexesBefore" : 2,
+	"numIndexesAfter" : 2,
+	"note" : "all indexes already exist",
+	"ok" : 1
+}
+
+# next, we use the $text operator to search the collection, using previous quey to find documents containing FIFA
+> db.users.find({$text:{$search:"FIFA"}}).count()
+4031
+
+# we can also search for documents containing FIFA but not Texas
+> db.users.find({$text:{$search:"FIFA -Texas"}}).count()
+4022
+
+## step 8
+# search using operators, for example, where tweet_mentioned_count is greater than 6
+> db.users.find({tweet_mentioned_count:{$gt:6}})
+{ "_id" : ObjectId("57966e26c3815920e1131b03"), "user_name" : "marshallrupe", "retweet_count" : 0, "tweet_followers_count" : 215, "source" : "<a href=\"http://twitter.com/download/iphone\" rel=\"nofollow\">Twitter for iPhone</a>", "coordinates" : null, "tweet_mentioned_count" : 7, "tweet_ID" : "757665013817409536", "tweet_text" : "RT @BrianBorrison: https://t.co/Z74VgYUUbB   Mepo Football Online Store  @marshallrupe @da_carlos30 @TrissyTim @BrockHiltonb @ZachZippe @ro…", "user" : { "CreatedAt" : ISODate("2013-11-29T16:00:22Z"), "FavouritesCount" : 326, "FollowersCount" : 215, "FriendsCount" : 165, "UserId" : -2073286695, "Location" : null } }
+{ "_id" : ObjectId("57966ecfc3815920e1132053"), "user_name" : "marvheys", "retweet_count" : 0, "tweet_followers_count" : 1215, "source" : "<a href=\"http://twitter.com/download/android\" rel=\"nofollow\">Twitter for Android</a>", "coordinates" : null, "tweet_mentioned_count" : 7, "tweet_ID" : "757665717948977152", "tweet_text" : "RT @philhayton11: Please can you RT @knoshville @cavbfc @carlosgreeny88 @AdamSmith1882 @marvheys @Matlalor  https://t.co/yOs8MxjA5d", "user" : { "CreatedAt" : ISODate("2012-01-29T17:32:37Z"), "FavouritesCount" : 1493, "FollowersCount" : 1215, "FriendsCount" : 850, "UserId" : 477884041, "Location" : "Burnley" } }
+{ "_id" : ObjectId("5796706bc38159226b4c8af1"), "user_name" : "HearAllAbtIt", "retweet_count" : 0, "tweet_followers_count" : 0, "source" : "<a href=\"http://twitter.com\" rel=\"nofollow\">Twitter Web Client</a>", "coordinates" : null, "tweet_mentioned_count" : 7, "tweet_ID" : "757667449324072961", "tweet_text" : "@richfryer73 @DXint @sporan1314 @johntward @klockedthis @RealistComic @lbcbreaking Aye its u, football connections mucker", "user" : { "CreatedAt" : ISODate("2016-06-19T16:50:20Z"), "FavouritesCount" : 0, "FollowersCount" : 0, "FriendsCount" : 0, "UserId" : -1663627264, "Location" : "Everywhere." } }
+{ "_id" : ObjectId("5796708cc38159226b4c8c59"), "user_name" : "ZachZippe", "retweet_count" : 0, "tweet_followers_count" : 160, "source" : "<a href=\"http://twitter.com/download/android\" rel=\"nofollow\">Twitter for Android</a>", "coordinates" : null, "tweet_mentioned_count" : 7, "tweet_ID" : "757667588356923393", "tweet_text" : "RT @BrianBorrison: https://t.co/Z74VgYUUbB   Mepo Football Online Store  @marshallrupe @da_carlos30 @TrissyTim @BrockHiltonb @ZachZippe @ro…", "user" : { "CreatedAt" : ISODate("2014-01-28T03:04:05Z"), "FavouritesCount" : 33, "FollowersCount" : 160, "FriendsCount" : 152, "UserId" : -1980218722, "Location" : "Mediapolis, IA" } }
+
+> db.users.find({tweet_mentioned_count:{$gt:6}}).count()
+4
+
+# we can user the $where command to compare between fields in the same document
+# for example, the following searches for tweet_mentioned_count greate than tweet_followers_count
+> db.users.find({$where:"this.tweet_mentioned_count > this.tweet_followers_count"}).count()
+18
+# notice that field name for $where are require to be prefixed with THIS, which represent the document
+
+# we can combine multiple searches by using $and
+# for example, tweet_text containing FIFA and tweet_mentioned_count great than 4
+# notice that logical operator was placed before the statement and 
+# the query always starts with () then {} or even [] from the outermost to the innermost
+> db.users.find({$and:[{tweet_text:/FIFA/},{tweet_mentioned_count:{$gt:4}}]}).count()
+1
+
+# the whole hand-on exercise goes like:
+# 1. switch to db sample by runnung use sample
+# 2. see the collections in db sample (colleciton & users) by runnung show collection
+# 3. there are 11188 users in users document by running db.users.count()
+# 4. pick one document by running db.users.findOne()
+# 5. find distinct name in user_name field
+# 6. viewing more for user_name=ActionSportsJax 
+# 7. filter the returned result by using 0
+# 8. experience different query in tweet_text using “”(specific) and //(containing)
+# 9. create index to speed up the searching
+# 10. using operator to perform more complex query 
 
 
