@@ -1,0 +1,154 @@
+## the exercise is run on cloudera quickstart VM
+
+## step 1
+## change to the mongodb directory
+[cloudera@quickstart ~]$ cd Downloads
+[cloudera@quickstart Downloads]$ cd big-data-3
+[cloudera@quickstart big-data-3]$ cd mongodb
+[cloudera@quickstart mongodb]$ ./mongodb/bin/mongod --dbpath db
+
+## run the mongodb shell to query the server
+[cloudera@quickstart ~]$ cd Downloads
+[cloudera@quickstart Downloads]$ cd big-data-3
+[cloudera@quickstart big-data-3]$ cd mongodb
+[cloudera@quickstart mongodb]$ ./mongodb/bin/mongo
+
+## step 2
+## show databases and collection
+> show dbs
+journaldev  0.000GB
+local       0.000GB
+sample      0.004GB
+test        0.000GB
+
+## db sample has loaded with Twitter JSON data so switch to that db
+> use sample
+switched to db sample
+
+## using show collection to see the collection
+> show collections
+collection
+users
+
+## Twitter data is stored in users collection
+> db.users.count()
+11188
+
+## step 3
+## look at document and find disitnct values, we can examine contents of one of the documents
+> db.users.findOne()
+{
+	"_id" : ObjectId("578ffa8e7eb9513f4f55a935"),
+	"user_name" : "koteras",
+	"retweet_count" : 0,
+	"tweet_followers_count" : 461,
+	"source" : "<a href=\"http://twitter.com/download/iphone\" rel=\"nofollow\">Twitter for iPhone</a>",
+	"coordinates" : null,
+	"tweet_mentioned_count" : 1,
+	"tweet_ID" : "755891629932675072",
+	"tweet_text" : "RT @ochocinco: I beat them all for 10 straight hours #FIFA16KING  https://t.co/BFnV6jfkBL",
+	"user" : {
+		"CreatedAt" : ISODate("2011-12-27T09:04:01Z"),
+		"FavouritesCount" : 5223,
+		"FollowersCount" : 461,
+		"FriendsCount" : 619,
+		"UserId" : 447818090,
+		"Location" : "501"
+	}
+}
+
+## so far, we have:
+## 1. switch to db sample by runnung use sample
+## 2. see the collections in db sample (colleciton & users) by runnung show collection
+## 3. there are 11188 users in users document by running db.users.count()
+## 4. pick one document by running db.users.findOne()
+
+## find distinct values for specific field by using distinct(), for example, user_name
+> db.users.distinct("user_name")
+        "BeaversSpyder",
+	"mattoak",
+	"bigmike76_757",
+	"shawturnheads",
+	"Corey_Clark",
+	"StanfordSpyder",
+	"yekeme",
+	"arntwine",
+	"paulmcdonnell7",
+	"finch_regan",
+	"palacepaul65",
+	"AprilleRoberts",
+	"FarrellyParaic1",
+	"Josee_Cule2",
+	"InPlay_Top_Tips",
+	"bmoorewhu82",
+	"RedAlieNeT",
+	"randysavageson",
+	"John_Hofman",
+	"3pointiscash",
+	"rhetschrauben",
+	"kyreek20",
+	"xI3uLLetz36",
+	"action76jackson",
+	"APkrawczynski",
+	"owen__6",
+	"Coach_U",
+	"darrenfinn49",
+	"HeraldStriker",
+	"_akuma_s",
+	"SavannahSyron",
+	"caneseye22",
+	"_London12_",
+	"OsorioM93",
+	"AlfaAllahguide",
+	"loflin_janice",
+	"NPSportFootball",
+	"Kytey1981",
+	"PaulWiecek",
+	"BeedotGaming",
+	"EricD_23",
+	"BlaQ_Speaks",
+	"AshWoody90",
+	"manutdbelieve",...
+
+## step 4
+## search for specific field value by using find(), for example, user_name = ActionSportsJax
+> db.users.find({user_name:"ActionSportsJax"})
+{ "_id" : ObjectId("579670bfc38159226b4c8e47"), "user_name" : "ActionSportsJax", "retweet_count" : 0, "tweet_followers_count" : 3539, "source" : "<a href=\"http://twitter.com/download/iphone\" rel=\"nofollow\">Twitter for iPhone</a>", "coordinates" : null, "tweet_mentioned_count" : 2, "tweet_ID" : "757667800521531393", "tweet_text" : "RT @wwbrown19: I'm watching the great broadcast from @actionsportsjax on St. Augustine football and asked myself \"How on earth did we stop…", "user" : { "CreatedAt" : ISODate("2009-04-27T20:52:10Z"), "FavouritesCount" : 120, "FollowersCount" : 3539, "FriendsCount" : 476, "UserId" : 35857042, "Location" : "Jacksonville, FL" } }
+
+## putting .pretty() to the end
+> db.users.find({user_name:"ActionSportsJax"}).pretty()
+{
+	"_id" : ObjectId("579670bfc38159226b4c8e47"),
+	"user_name" : "ActionSportsJax",
+	"retweet_count" : 0,
+	"tweet_followers_count" : 3539,
+	"source" : "<a href=\"http://twitter.com/download/iphone\" rel=\"nofollow\">Twitter for iPhone</a>",
+	"coordinates" : null,
+	"tweet_mentioned_count" : 2,
+	"tweet_ID" : "757667800521531393",
+	"tweet_text" : "RT @wwbrown19: I'm watching the great broadcast from @actionsportsjax on St.Augustine football and asked myself \"How on earth did we stop…",
+	"user" : {
+		"CreatedAt" : ISODate("2009-04-27T20:52:10Z"),
+		"FavouritesCount" : 120,
+		"FollowersCount" : 3539,
+		"FriendsCount" : 476,
+		"UserId" : 35857042,
+		"Location" : "Jacksonville, FL"
+	}
+}
+
+## step 5
+## filter fields returned by query, specify specific arguement to only show the fields we want, in this case tweet_ID
+> db.users.find({user_name:"ActionSportsJax"},{tweet_ID:1})
+{ "_id" : ObjectId("579670bfc38159226b4c8e47"), "tweet_ID" : "757667800521531393" }
+
+## motice that _id field is primary key for every document, we can remove it by using 0, either order will do
+> db.users.find({user_name:"ActionSportsJax"},{tweet_ID:1, _id:0})
+{ "tweet_ID" : "757667800521531393" }
+> db.users.find({user_name:"ActionSportsJax"},{ _id:0, tweet_ID:1})
+{ "tweet_ID" : "757667800521531393" }
+
+## step 6
+## perform regular expression search
+
+
